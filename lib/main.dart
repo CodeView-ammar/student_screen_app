@@ -5,6 +5,7 @@ import 'package:student_screen_app/splash_screen.dart';
 import 'providers/auth_provider.dart';
 import 'providers/student_calls_provider.dart';
 import 'screens/login_screen.dart';
+import 'screens/branch_selection_screen.dart';
 import 'screens/student_calls_screen.dart';
 
 void main() {
@@ -164,9 +165,16 @@ class AuthWrapper extends StatelessWidget {
               );
             }
             
-            // الانتقال لشاشة الندائات إذا كان المستخدم مسجل الدخول
+            // إذا كان المستخدم مسجل الدخول
             if (snapshot.data == true && authProvider.isAuthenticated) {
-              return const StudentCallsScreen();
+              // التحقق من وجود فصل محفوظ
+              if (authProvider.selectedGradeClass != null) {
+                // الانتقال لشاشة الندائات إذا كان هناك فصل محفوظ
+                return const StudentCallsScreen();
+              } else {
+                // الانتقال لشاشة اختيار الفصل إذا لم يكن هناك فصل محفوظ
+                return const BranchSelectionScreen();
+              }
             }
             
             // الانتقال لشاشة تسجيل الدخول

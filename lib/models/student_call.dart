@@ -6,7 +6,7 @@ class StudentCall {
   final String? className;
   final String? branchName;
   final String callPeriod; // morning, afternoon, evening
-  final String status; // pending, answered, not_answered
+  final String status; // leave, pending, answered, etc.
   final DateTime createdAt;
   final DateTime? answeredAt;
   final String? notes;
@@ -27,23 +27,23 @@ class StudentCall {
 
   factory StudentCall.fromJson(Map<String, dynamic> json) {
     return StudentCall(
-      id: json['id'] ?? 0,
+      id: json['call_id'] ?? 0,
       studentId: json['student_id'] ?? 0,
-      studentName: json['student_name'] ?? json['student']?['name'] ?? '',
-      studentPhoto: json['student_photo'] ?? json['student']?['photo'],
-      className: json['class_name'] ?? json['student']?['class_name'],
-      branchName: json['branch_name'] ?? json['student']?['branch_name'],
+      studentName: json['student']['name_en'] ?? '',
+      studentPhoto: json['student']['photo'] ?? '',
+      className: json['student']['grade_class']?['name_en'], // أو 'name_en' حسب الحاجة
+      branchName: json['branch']?['name_en'], // تأكد من أن هذا صحيح
       callPeriod: json['call_period'] ?? 'morning',
       status: json['status'] ?? 'pending',
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      answeredAt: json['answered_at'] != null ? DateTime.parse(json['answered_at']) : null,
-      notes: json['notes'],
+      createdAt: DateTime.parse(json['created_at']),
+      answeredAt: json['call_edate'] != null ? DateTime.parse(json['call_edate']) : null,
+      notes: "", // أو استخدم ملاحظات إذا كانت موجودة
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'call_id': id,
       'student_id': studentId,
       'student_name': studentName,
       'student_photo': studentPhoto,

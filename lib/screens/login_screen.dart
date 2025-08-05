@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../models/branch.dart';
-import '../services/api_service.dart';
+import 'branch_selection_screen.dart';
 import 'student_calls_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,76 +15,41 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _apiService = ApiService();
-  
-  Branch? _selectedBranch;
-  List<Branch> _branches = [];
-  bool _isLoadingBranches = false;
   bool _passwordVisible = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadBranches();
-  }
-
-  Future<void> _loadBranches() async {
-    setState(() {
-      _isLoadingBranches = true;
-    });
-
-    try {
-      // افتراض أن school_id = 1، يمكن تغييرها حسب الحاجة
-      final branches = await _apiService.getBranches(1);
-      setState(() {
-        _branches = branches;
-        _isLoadingBranches = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoadingBranches = false;
-      });
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('فشل في تحميل الفصول: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // if (_selectedBranch == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('يرجى اختيار الفصل'),
-    //       backgroundColor: Colors.orange,
-    //     ),
-    //   );
-    //   return;
-    // }
+
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     
     final success = await authProvider.login(
       _phoneController.text.trim(),
       _passwordController.text.trim(),
-      // _selectedBranch!,
     );
 
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const StudentCallsScreen(),
-        ),
-      );
+      // التحقق من وجود فصل محفوظ
+      final hasSavedGradeClass = await authProvider.hasSavedGradeClass();
+      
+      if (hasSavedGradeClass) {
+        // إذا كان هناك فصل محفوظ، انتقل لشاشة الندائات مباشرة
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const StudentCallsScreen(),
+          ),
+        );
+      } else {
+        // إذا لم يكن هناك فصل محفوظ، انتقل لشاشة اختيار الفصل
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const BranchSelectionScreen(),
+          ),
+        );
+      }
     } else if (mounted && authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -224,53 +188,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
-
-                        // قائمة اختيار الفصل
-                        // DropdownButtonFormField<Branch>(
-                        //   value: _selectedBranch,
-                        //   decoration: InputDecoration(
-                        //     labelText: 'اختيار الفصل',
-                        //     prefixIcon: const Icon(Icons.class_outlined),
-                        //     border: OutlineInputBorder(
-                        //       borderRadius: BorderRadius.circular(12),
-                        //     ),
-                        //     filled: true,
-                        //     fillColor: Colors.grey[50],
-                        //   ),
-                        //   items: _branches.map((branch) {
-                        //     return DropdownMenuItem<Branch>(
-                        //       value: branch,
-                        //       child: Text(branch.name),
-                        //     );
-                        //   }).toList(),
-                        //   onChanged: _isLoadingBranches
-                        //       ? null
-                        //       : (Branch? value) {
-                        //           setState(() {
-                        //             _selectedBranch = value;
-                        //           });
-                        //         },
-                        //   validator: (value) {
-                        //     if (value == null) {
-                        //       return 'يرجى اختيار الفصل';
-                        //     }
-                        //     return null;
-                        //   },
-                        //   hint: _isLoadingBranches
-                        //       ? const Row(
-                        //           children: [
-                        //             SizedBox(
-                        //               width: 16,
-                        //               height: 16,
-                        //               child: CircularProgressIndicator(strokeWidth: 2),
-                        //             ),
-                        //             SizedBox(width: 8),
-                        //             Text('جاري تحميل الفصول...'),
-                        //           ],
-                        //         )
-                        //       : const Text('اختر الفصل'),
-                        // ),
                         const SizedBox(height: 32),
 
                         // زر تسجيل الدخول
@@ -309,18 +226,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                           },
                         ),
-                        
-                        // const SizedBox(height: 16),
-                        
-                        // // زر إعادة تحميل الفصول
-                        // TextButton.icon(
-                        //   onPressed: _isLoadingBranches ? null : _loadBranches,
-                        //   icon: const Icon(Icons.refresh),
-                        //   label: const Text('إعادة تحميل الفصول'),
-                        //   style: TextButton.styleFrom(
-                        //     foregroundColor: const Color(0xFF1E3A8A),
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),

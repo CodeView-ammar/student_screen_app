@@ -62,7 +62,7 @@ class StudentCallsProvider with ChangeNotifier {
   }
 
   Future<void> loadStudentCalls({
-    int? branchId,
+    int? gradeClassId,
     String? date,
     bool forceRefresh = false,
   }) async {
@@ -73,7 +73,7 @@ class StudentCallsProvider with ChangeNotifier {
 
     try {
       final calls = await _apiService.getStudentCalls(
-        // branchId: branchId,
+        gradeClassId: gradeClassId == -1 ? null : gradeClassId, // إذا كان -1 فهذا يعني كل الفصول
         date: date ?? DateTime.now().toIso8601String().split('T')[0],
       );
       
@@ -119,8 +119,8 @@ class StudentCallsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> refreshCalls({int? branchId}) async {
-    await loadStudentCalls(branchId: branchId, forceRefresh: true);
+  Future<void> refreshCalls({int? gradeClassId}) async {
+    await loadStudentCalls(gradeClassId: gradeClassId, forceRefresh: true);
   }
 
   // إحصائيات سريعة

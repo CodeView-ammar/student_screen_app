@@ -3,11 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../providers/student_calls_provider.dart';
-import '../models/student_call.dart';
+
 import '../widgets/call_card.dart';
 import '../widgets/statistics_card.dart';
 import '../widgets/filter_bar.dart';
 import 'login_screen.dart';
+import 'branch_selection_screen.dart';
 
 class StudentCallsScreen extends StatefulWidget {
   const StudentCallsScreen({super.key});
@@ -29,9 +30,9 @@ class _StudentCallsScreenState extends State<StudentCallsScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final callsProvider = Provider.of<StudentCallsProvider>(context, listen: false);
     
-    if (authProvider.selectedBranch != null) {
+    if (authProvider.selectedGradeClass != null) {
       callsProvider.loadStudentCalls(
-        branchId: authProvider.selectedBranch!.id,
+        gradeClassId: authProvider.selectedGradeClass!.id,
       );
     }
   }
@@ -40,9 +41,9 @@ class _StudentCallsScreenState extends State<StudentCallsScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final callsProvider = Provider.of<StudentCallsProvider>(context, listen: false);
     
-    if (authProvider.selectedBranch != null) {
+    if (authProvider.selectedGradeClass != null) {
       await callsProvider.refreshCalls(
-        branchId: authProvider.selectedBranch!.id,
+        gradeClassId: authProvider.selectedGradeClass!.id,
       );
     }
   }
@@ -58,6 +59,14 @@ class _StudentCallsScreenState extends State<StudentCallsScreen> {
         ),
       );
     }
+  }
+
+  void _changeBranch() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const BranchSelectionScreen(),
+      ),
+    );
   }
 
   @override
@@ -153,7 +162,7 @@ class _StudentCallsScreenState extends State<StudentCallsScreen> {
                                 ),
                               ),
                               Text(
-                                authProvider.selectedBranch?.name ?? 'غير محدد',
+                                authProvider.selectedGradeClass?.name ?? 'غير محدد',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   color: Color(0xFF6B7280),
@@ -223,6 +232,19 @@ class _StudentCallsScreenState extends State<StudentCallsScreen> {
                         ),
                       );
                     },
+                  ),
+                  const SizedBox(width: 8),
+                  
+                  // زر تغيير الفصل
+                  IconButton(
+                    onPressed: _changeBranch,
+                    icon: const Icon(Icons.swap_horiz),
+                    tooltip: 'تغيير الفصل',
+                    style: IconButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.all(12),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   

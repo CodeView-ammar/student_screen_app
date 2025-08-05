@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:student_screen_app/screens/login_screen.dart';
+import 'package:student_screen_app/screens/branch_selection_screen.dart';
 import 'package:student_screen_app/screens/student_calls_screen.dart';
 import '../providers/auth_provider.dart';
 
@@ -21,13 +22,22 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkLoginStatus() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    await authProvider.loadSavedCredentials(); // تحقق من بيانات الاعتماد
+    await authProvider.loadSavedData(); // تحميل جميع البيانات المحفوظة
 
     // انتقل إلى الشاشة المناسبة بناءً على حالة تسجيل الدخول
     if (authProvider.isAuthenticated) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const StudentCallsScreen()),
-      );
+      // التحقق من وجود فصل محفوظ
+      if (authProvider.selectedGradeClass != null) {
+        // إذا كان هناك فصل محفوظ، انتقل لشاشة الندائات
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const StudentCallsScreen()),
+        );
+      } else {
+        // إذا لم يكن هناك فصل محفوظ، انتقل لشاشة اختيار الفصل
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const BranchSelectionScreen()),
+        );
+      }
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const LoginScreen()),

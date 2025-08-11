@@ -69,65 +69,89 @@ class _StudentCallsScreenState extends State<StudentCallsScreen> {
     );
   }
 
+  bool showHeader = false;
+
+  void toggleHeader() {
+    setState(() {
+      showHeader = !showHeader;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF8FAFC),
-              Color(0xFFE2E8F0),
+      body: Stack(
+        children: [
+          CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                expandedHeight: showHeader ? 170.0 : 0.0,
+                backgroundColor: Colors.white,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: _buildHeader(),
+                ),
+              ),
+                          SliverList(
+              delegate: SliverChildListDelegate([
+                // إحصائيات، شريط الفلتر، قائمة الندائات
+                // _buildStatisticsSection(),
+                // const FilterBar(),
+                _buildCallsList(),
+              ]),
+            ),
             ],
           ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView( // إضافة هنا
-            child: Column(
-              children: [
-                // Header
-                _buildHeader(),
-                
-                // Statistics Cards
-                _buildStatisticsSection(),
-                
-                // Filter Bar
-                const FilterBar(),
-                
-                // Calls List
-                _buildCallsList(),
-              ],
+          Positioned(
+            top: 10,
+            right: 10,
+            child: GestureDetector(
+              onTap: toggleHeader,
+              onVerticalDragUpdate: (details) {
+                if (details.primaryDelta! > 5) {
+                  setState(() => showHeader = true);
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  showHeader ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        final now = DateTime.now();
-        final formatter = DateFormat('EEEE, dd MMMM yyyy', 'ar');
-        
-        return Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
+     return Consumer<AuthProvider>(
+    builder: (context, authProvider, child) {
+      final now = DateTime.now();
+      final formatter = DateFormat('EEEE, dd MMMM yyyy', 'ar');
+      
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
               // معلومات التطبيق
               Expanded(
                 child: Column(

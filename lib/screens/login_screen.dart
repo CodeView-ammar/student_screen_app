@@ -34,22 +34,22 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       // التحقق من وجود فصل محفوظ
       final hasSavedGradeClass = await authProvider.hasSavedGradeClass();
-      
-      if (hasSavedGradeClass) {
-        // إذا كان هناك فصل محفوظ، انتقل لشاشة الندائات مباشرة
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const StudentCallsScreen(),
-          ),
-        );
-      } else {
+      print(hasSavedGradeClass);
+      // if (hasSavedGradeClass) {
+      //   // إذا كان هناك فصل محفوظ، انتقل لشاشة الندائات مباشرة
+      //   Navigator.of(context).pushReplacement(
+      //     MaterialPageRoute(
+      //       builder: (context) => const StudentCallsScreen(),
+      //     ),
+      //   );
+      // } else {
         // إذا لم يكن هناك فصل محفوظ، انتقل لشاشة اختيار الفصل
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const BranchSelectionScreen(),
           ),
         );
-      }
+      // }
     } else if (mounted && authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

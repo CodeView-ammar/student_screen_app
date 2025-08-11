@@ -65,6 +65,8 @@ class StudentCall {
         return 'تم الرد';
       case 'not_answered':
         return 'لم يتم الرد';
+      case 'leave':
+        return 'انطلق';
       default:
         return status;
     }

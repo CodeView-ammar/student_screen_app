@@ -60,8 +60,8 @@ Future<bool> login(String phone, String password) async {
       await AuthService().logout();
       
       // حذف الفصل المحفوظ
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('selected_grade_class');
+      // final prefs = await SharedPreferences.getInstance();
+      // await prefs.remove('selected_grade_class');
     } catch (e) {
       // تجاهل أخطاء تسجيل الخروج
     }
@@ -88,18 +88,19 @@ Future<bool> login(String phone, String password) async {
 
   // تحميل الفصل المحفوظ من التخزين المحلي
   Future<GradeClass?> getStoredGradeClass() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final gradeClassJson = prefs.getString('selected_grade_class');
-      if (gradeClassJson != null) {
-        return GradeClass.fromJson(jsonDecode(gradeClassJson));
-      }
-      return null;
-    } catch (e) {
-      return null;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final gradeClassJson = prefs.getString('selected_grade_class');
+    print('Stored grade class JSON: $gradeClassJson'); // إضافة تسجيل
+    if (gradeClassJson != null) {
+      return GradeClass.fromJson(jsonDecode(gradeClassJson));
     }
+    return null;
+  } catch (e) {
+    print('Error loading grade class: $e'); // إضافة تسجيل
+    return null;
   }
-
+}
   // التحقق من وجود فصل محفوظ
   Future<bool> hasSavedGradeClass() async {
     final gradeClass = await getStoredGradeClass();
@@ -108,10 +109,12 @@ Future<bool> login(String phone, String password) async {
 
   // تحميل البيانات المحفوظة عند بدء التطبيق
   Future<void> loadSavedData() async {
-    _user = await AuthService().getCurrentUser();
-    _selectedGradeClass = await getStoredGradeClass();
-    notifyListeners();
-  }
+  _user = await AuthService().getCurrentUser();
+  print('Loaded user: $_user');
+  _selectedGradeClass = await getStoredGradeClass();
+  print('Loaded selectedGradeClass: $_selectedGradeClass');
+  notifyListeners();
+}
 
   Future<bool> checkAuthStatus() async {
     try {
